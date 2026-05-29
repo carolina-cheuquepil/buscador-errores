@@ -61,6 +61,7 @@
         <a class="navbar-brand" href="{% url 'errores:lista' %}">
             <i class="bi bi-bug-fill"></i> Buscador de Errores Dimarsa
         </a>
+        {% if user.is_authenticated %}
         <div class="d-flex gap-2">
             <a href="{% url 'errores:hardware_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-pc-display"></i> Hardware
@@ -83,7 +84,23 @@
             <a href="/admin/" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-gear"></i> Admin
             </a>
+            <span class="navbar-text small text-light ms-2">
+                <i class="bi bi-person-circle"></i> {{ user.get_username }}
+            </span>
+            <form method="post" action="{% url 'logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+            </form>
         </div>
+        {% else %}
+        <div class="d-flex">
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-in-right"></i> Entrar
+            </a>
+        </div>
+        {% endif %}
     </div>
 </nav>
 

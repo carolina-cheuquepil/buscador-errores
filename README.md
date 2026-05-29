@@ -12,6 +12,8 @@ Aplicacion web hecha con Django y Bootstrap 5 para buscar, administrar y mantene
 - Modal rapido para crear o editar soluciones desde el formulario de errores.
 - Asignacion de encargados mediante casillas, para poder marcar y desmarcar responsables sin usar combinaciones de teclado.
 - Contactos por departamento.
+- Login obligatorio para usar la aplicacion.
+- Bloqueo temporal despues de varios intentos fallidos de login.
 - Panel de administracion de Django en `/admin/`.
 - Importador desde Excel con `python manage.py importar_excel`.
 
@@ -48,6 +50,7 @@ pip install -r requirements.txt
 ```powershell
 $env:DJANGO_SECRET_KEY="cambia-esta-clave"
 $env:DJANGO_DEBUG="True"
+$env:DJANGO_ALLOWED_HOSTS="127.0.0.1,localhost"
 $env:DB_ENGINE="django.db.backends.mysql"
 $env:DB_NAME="errores_dimarsa"
 $env:DB_USER="usuario"
@@ -82,6 +85,8 @@ python manage.py importar_excel "ruta/al/errores Dimarsa.xlsx" --reset
 python manage.py createsuperuser
 ```
 
+Tambien puedes crear usuarios desde `/admin/` una vez que entres con el superusuario.
+
 7. Levantar el servidor:
 
 ```bash
@@ -91,11 +96,14 @@ python manage.py runserver
 Abrir:
 
 - Buscador: <http://127.0.0.1:8000/>
+- Login: <http://127.0.0.1:8000/login/>
 - Admin: <http://127.0.0.1:8000/admin/>
 
 ## Rutas principales
 
 - `/`: listado y busqueda de errores.
+- `/login/`: inicio de sesion.
+- `/logout/`: cierre de sesion por POST.
 - `/error/nuevo/`: crear error.
 - `/soluciones/`: administrar soluciones.
 - `/responsables/`: administrar responsables.
@@ -130,4 +138,8 @@ El `.gitignore` excluye entorno virtual, cache de Python, bases SQLite, archivos
 
 - No subas claves, passwords, bases de datos reales ni Excel con informacion interna.
 - Configura credenciales mediante variables de entorno en el servidor.
-- Para produccion, usa `DJANGO_DEBUG=False` y define `ALLOWED_HOSTS` con los dominios permitidos.
+- Para produccion, usa `DJANGO_DEBUG=False` y define `DJANGO_ALLOWED_HOSTS` con los dominios permitidos.
+- Define `DJANGO_SECRET_KEY` con una clave unica y privada.
+- Publica el sitio solo con HTTPS. Si el proxy o hosting ya entrega HTTPS, configura las variables `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS`, `CSRF_TRUSTED_ORIGINS` y `USE_X_FORWARDED_PROTO` segun el entorno.
+- El login usa usuarios de Django, validadores de contrasena y bloqueo temporal por intentos fallidos.
+- El logout se hace por POST con CSRF.
