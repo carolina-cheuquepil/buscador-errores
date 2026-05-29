@@ -1,0 +1,126 @@
+{% extends 'errores/base.html' %}
+
+{% block title %}Error #{{ error.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    <div>
+        <a href="{% url 'errores:editar' error.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <a href="{% url 'errores:eliminar' error.pk %}" class="btn btn-sm btn-outline-danger">
+            <i class="bi bi-trash"></i> Eliminar
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-header d-flex justify-content-between bg-white">
+        <span><i class="bi bi-bug"></i> Error #{{ error.id }}</span>
+        {% if error.frecuencia %}
+            <span class="badge text-white badge-freq-{{ error.frecuencia.nivel }}">{{ error.frecuencia.nivel }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h5 class="text-pre">{{ error.descripcion }}</h5>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><i class="bi bi-cpu"></i> Contexto</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Hardware</span>
+                    <strong>{{ error.hardware|default:"—" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Sistema</span>
+                    <strong>{{ error.sistema|default:"—" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Modulo</span>
+                    <strong class="text-end">{{ error.modulo|default:"—" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Usuario</span>
+                    <strong class="text-end">{{ error.usuario|default:"—" }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Imagen del error</span>
+                    <strong class="text-end">{{ error.imagen_error|default:"—" }}</strong>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-white"><i class="bi bi-exclamation-triangle"></i> Causa del problema</div>
+            <div class="card-body text-pre">{{ error.causa|default:"—" }}</div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-white text-success"><i class="bi bi-check2-circle"></i> Solución</div>
+            <div class="card-body">
+                {% if soluciones_del_error %}
+                    <div class="vstack gap-3">
+                        {% for error_solucion in soluciones_del_error %}
+                            <div>
+                                <div class="fw-semibold">{{ error_solucion.solucion.nombre }}</div>
+
+                                {% if error_solucion.solucion.pasos %}
+                                    <div class="text-pre mt-1">{{ error_solucion.solucion.pasos }}</div>
+                                {% endif %}
+
+                                {% if error_solucion.notas %}
+                                    <div class="text-pre text-muted mt-1">{{ error_solucion.notas }}</div>
+                                {% endif %}
+
+                                <div class="mt-2">
+                                    <span class="text-muted small">Responsable:</span>
+                                    {% for asignacion in error_solucion.solucion.asignaciones.all %}
+                                        <span class="badge bg-light text-dark border">
+                                            {% if asignacion.responsable %}
+                                                {{ asignacion.responsable.nombre }}
+                                            {% else %}
+                                                {{ asignacion.departamento.nombre }}
+                                            {% endif %}
+                                            {% if asignacion.rol %} - {{ asignacion.rol }}{% endif %}
+                                            {% if asignacion.principal %} principal{% endif %}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-muted small">Sin asignacion</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-muted">Sin solucion asignada.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if error.comentarios %}
+<div class="row g-3 mt-1">
+    {% if error.comentarios %}
+    <div class="col-md-12">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><i class="bi bi-chat-left-text"></i> Comentarios</div>
+            <div class="card-body text-pre">{{ error.comentarios }}</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="text-muted small mt-3 text-end">
+    Creado: {{ error.creado|date:"d/m/Y H:i" }} · Última edición: {{ error.actualizado|date:"d/m/Y H:i" }}
+</div>
+
+{% endblock %}

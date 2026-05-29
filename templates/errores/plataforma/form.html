@@ -1,0 +1,78 @@
+{% extends 'errores/base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<a href="{{ volver_url }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white"><i class="bi bi-pencil-square"></i> {{ titulo }}</div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            {{ form.non_field_errors }}
+
+            {% if contacto_formset %}
+                <hr>
+                <h6 class="mb-3">Contactos del departamento</h6>
+                {{ contacto_formset.management_form }}
+                {{ contacto_formset.non_form_errors }}
+                <div class="vstack gap-3 mb-3">
+                    {% for contacto_form in contacto_formset %}
+                        <div class="border rounded p-3 bg-light">
+                            {% for hidden in contacto_form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label for="{{ contacto_form.tipo.id_for_label }}" class="form-label">{{ contacto_form.tipo.label }}</label>
+                                    {{ contacto_form.tipo }}
+                                    {{ contacto_form.tipo.errors }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ contacto_form.numero.id_for_label }}" class="form-label">{{ contacto_form.numero.label }}</label>
+                                    {{ contacto_form.numero }}
+                                    {{ contacto_form.numero.errors }}
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-check">
+                                        {{ contacto_form.activo }}
+                                        <label for="{{ contacto_form.activo.id_for_label }}" class="form-check-label">{{ contacto_form.activo.label }}</label>
+                                    </div>
+                                    {{ contacto_form.activo.errors }}
+                                </div>
+                                {% if contacto_form.DELETE %}
+                                    <div class="col-md-2">
+                                        <div class="form-check">
+                                            {{ contacto_form.DELETE }}
+                                            <label for="{{ contacto_form.DELETE.id_for_label }}" class="form-check-label">Eliminar</label>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {{ contacto_form.non_field_errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ volver_url }}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2"></i> {{ boton }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

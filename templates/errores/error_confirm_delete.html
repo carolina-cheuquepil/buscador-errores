@@ -1,0 +1,24 @@
+{% extends 'errores/base.html' %}
+
+{% block title %}Eliminar error #{{ error.id }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-danger">
+    <div class="card-header bg-danger text-white">
+        <i class="bi bi-exclamation-triangle-fill"></i> Confirmar eliminación
+    </div>
+    <div class="card-body">
+        <p>¿Estás segura/o de eliminar el siguiente error? Esta acción no se puede deshacer.</p>
+        <div class="alert alert-light border">
+            <strong>#{{ error.id }}</strong> — {{ error.descripcion }}
+        </div>
+        <form method="post" class="d-flex justify-content-end gap-2">
+            {% csrf_token %}
+            <a href="{% url 'errores:detalle' error.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Sí, eliminar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

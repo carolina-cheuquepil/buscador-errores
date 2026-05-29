@@ -1,0 +1,52 @@
+{% extends 'errores/base.html' %}
+
+{% block title %}Sistemas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-window-stack"></i> Sistemas <span class="badge bg-secondary">{{ sistemas|length }}</span></h5>
+    <a href="{% url 'errores:sistema_crear' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nuevo sistema
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Sistema</th>
+                    <th>Descripcion</th>
+                    <th>Modulos</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sistema in sistemas %}
+                <tr>
+                    <td class="fw-medium">{{ sistema.nombre }}</td>
+                    <td>{{ sistema.descripcion|default:"-" }}</td>
+                    <td>
+                        {% for modulo in sistema.modulos.all %}
+                            <span class="badge bg-light text-dark border">{{ modulo.nombre }}</span>
+                        {% empty %}
+                            <span class="text-muted">-</span>
+                        {% endfor %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'errores:sistema_editar' sistema.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'errores:sistema_eliminar' sistema.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-4">No hay sistemas registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Buscador de Errores{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f7f8fa; }
+        .navbar-brand { font-weight: 600; }
+        .table th { white-space: nowrap; }
+        .text-pre { white-space: pre-wrap; }
+        .card-header { font-weight: 600; }
+        .badge-freq-Diario { background-color: #dc3545; }
+        .badge-freq-Frecuente { background-color: #fd7e14; }
+        .badge-freq-Semanal { background-color: #ffc107; color:#000; }
+        .badge-freq-Ocacional { background-color: #20c997; }
+        .badge-freq-Raro { background-color: #6c757d; }
+        .badge-freq-Anual { background-color: #0dcaf0; color:#000; }
+        .description-cell { max-width: 420px; }
+        .solution-badge-button {
+            border-radius: var(--bs-border-radius-pill);
+            line-height: 1.2;
+            text-align: left;
+            white-space: normal;
+        }
+        .checkbox-list,
+        div#id_responsables,
+        div#id_departamentos {
+            display: grid;
+            gap: .35rem .75rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            max-height: 14rem;
+            overflow-y: auto;
+            padding: .75rem;
+            border: var(--bs-border-width) solid var(--bs-border-color);
+            border-radius: var(--bs-border-radius);
+            background-color: var(--bs-body-bg);
+        }
+        .checkbox-list label,
+        div#id_responsables label,
+        div#id_departamentos label {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin: 0;
+        }
+        .checkbox-list input,
+        div#id_responsables input,
+        div#id_departamentos input {
+            flex: 0 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'errores:lista' %}">
+            <i class="bi bi-bug-fill"></i> Buscador de Errores Dimarsa
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'errores:hardware_lista' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-pc-display"></i> Hardware
+            </a>
+            <a href="{% url 'errores:sistema_lista' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-window-stack"></i> Sistemas
+            </a>
+            <a href="{% url 'errores:departamento_lista' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-building"></i> Departamentos
+            </a>
+            <a href="{% url 'errores:prueba_lista' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-clipboard-check"></i> Pruebas
+            </a>
+            <a href="{% url 'errores:solucion_lista' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-tools"></i> Soluciones
+            </a>
+            <a href="{% url 'errores:crear' %}" class="btn btn-outline-light btn-sm me-2">
+                <i class="bi bi-plus-lg"></i> Nuevo error
+            </a>
+            <a href="/admin/" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-gear"></i> Admin
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="text-center text-muted small py-4 border-top">
+    Buscador de Errores · Django + Bootstrap
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

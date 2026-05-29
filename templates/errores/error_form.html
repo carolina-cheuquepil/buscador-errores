@@ -1,0 +1,406 @@
+{% extends 'errores/base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<style>
+    #solucionModal .modal-content {
+        max-height: calc(100vh - 3.5rem);
+    }
+    #solucionRapidaForm {
+        display: flex;
+        flex-direction: column;
+        max-height: inherit;
+        min-height: 0;
+    }
+    #solucionRapidaForm .modal-body {
+        overflow-y: auto;
+    }
+    #solucionRapidaForm .modal-footer {
+        flex-shrink: 0;
+    }
+</style>
+
+<a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white"><i class="bi bi-pencil-square"></i> {{ titulo }}</div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">{{ form.descripcion.label }} <span class="text-danger">*</span></label>
+                {{ form.descripcion }}
+                {{ form.descripcion.errors }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.hardware.id_for_label }}" class="form-label">{{ form.hardware.label }}</label>
+                    {{ form.hardware }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.sistema.id_for_label }}" class="form-label">{{ form.sistema.label }}</label>
+                    {{ form.sistema }}
+                    {{ form.sistema.errors }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.modulo.id_for_label }}" class="form-label">{{ form.modulo.label }}</label>
+                    {{ form.modulo }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.frecuencia.id_for_label }}" class="form-label">{{ form.frecuencia.label }}</label>
+                    {{ form.frecuencia }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="{{ form.usuario.id_for_label }}" class="form-label">{{ form.usuario.label }}</label>
+                    {{ form.usuario }}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.imagen_error.id_for_label }}" class="form-label">{{ form.imagen_error.label }}</label>
+                {{ form.imagen_error }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.causa.id_for_label }}" class="form-label">{{ form.causa.label }}</label>
+                {{ form.causa }}
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
+                    <label for="{{ form.soluciones.id_for_label }}" class="form-label mb-0">{{ form.soluciones.label }}</label>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary" id="editarSolucionSeleccionada" disabled>
+                            <i class="bi bi-pencil-square"></i> Editar solución
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="nuevaSolucion" data-bs-toggle="modal" data-bs-target="#solucionModal">
+                            <i class="bi bi-plus-lg"></i> Nueva solución
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group mb-2">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="search" class="form-control" id="solucionBuscador" placeholder="Buscar solución...">
+                    <button class="btn btn-outline-secondary" type="button" id="limpiarBusquedaSolucion">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                {{ form.soluciones }}
+                {{ form.soluciones.errors }}
+                <div class="form-text">Puedes seleccionar una o varias soluciones. Si editas una solución, el cambio se aplica a todos los errores que la usan.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.comentarios.id_for_label }}" class="form-label">{{ form.comentarios.label }}</label>
+                {{ form.comentarios }}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'errores:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2"></i> {{ boton }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="solucionModal" tabindex="-1" aria-labelledby="solucionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="solucionRapidaForm" method="post" action="{% url 'errores:solucion_crear_rapida' %}" data-create-url="{% url 'errores:solucion_crear_rapida' %}" data-edit-url-template="{% url 'errores:solucion_editar_rapida' 0 %}" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="solucionModalLabel">
+                        <i class="bi bi-tools"></i> Nueva solución
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-none" id="solucionRapidaError" role="alert"></div>
+                    <div class="mb-3">
+                        <label for="solucionNombre" class="form-label">Título <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="solucionNombre" name="nombre" maxlength="220" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="solucionPasos" class="form-label">Pasos</label>
+                        <textarea class="form-control" id="solucionPasos" name="pasos" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="solucionResponsables" class="form-label">Encargado de la solución</label>
+                        <div class="checkbox-list" id="solucionResponsables">
+                            {% for responsable in responsables_activos %}
+                                <label>
+                                    <input type="checkbox" name="responsables" value="{{ responsable.pk }}">
+                                    {{ responsable.nombre }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="solucionDepartamentos" class="form-label">Departamentos encargados</label>
+                        <div class="checkbox-list" id="solucionDepartamentos">
+                            {% for departamento in departamentos_activos %}
+                                <label>
+                                    <input type="checkbox" name="departamentos" value="{{ departamento.pk }}">
+                                    {{ departamento.nombre }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label for="solucionAnexos" class="form-label">Anexos</label>
+                        <textarea class="form-control" id="solucionAnexos" name="anexos" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="guardarSolucionRapida">
+                        <i class="bi bi-check2"></i> Guardar solución
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ hardware_sistemas|json_script:"hardwareSistemasData" }}
+{{ sistema_modulos|json_script:"sistemaModulosData" }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const hardwareSelect = document.getElementById('{{ form.hardware.id_for_label }}');
+    const sistemaSelect = document.getElementById('{{ form.sistema.id_for_label }}');
+    const moduloSelect = document.getElementById('{{ form.modulo.id_for_label }}');
+    const hardwareSistemas = JSON.parse(document.getElementById('hardwareSistemasData').textContent);
+    const sistemaModulos = JSON.parse(document.getElementById('sistemaModulosData').textContent);
+    const buscador = document.getElementById('solucionBuscador');
+    const limpiarBusqueda = document.getElementById('limpiarBusquedaSolucion');
+    const solucionesSelect = document.getElementById('{{ form.soluciones.id_for_label }}');
+    const solucionForm = document.getElementById('solucionRapidaForm');
+    const solucionError = document.getElementById('solucionRapidaError');
+    const guardarSolucion = document.getElementById('guardarSolucionRapida');
+    const editarSolucion = document.getElementById('editarSolucionSeleccionada');
+    const nuevaSolucion = document.getElementById('nuevaSolucion');
+    const modalElement = document.getElementById('solucionModal');
+    const modalTitulo = document.getElementById('solucionModalLabel');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    const crearSolucionUrl = solucionForm.dataset.createUrl;
+    const editarSolucionUrlTemplate = solucionForm.dataset.editUrlTemplate;
+    const solucionNombre = document.getElementById('solucionNombre');
+    const solucionPasos = document.getElementById('solucionPasos');
+    const solucionAnexos = document.getElementById('solucionAnexos');
+    const solucionResponsables = document.getElementById('solucionResponsables');
+    const solucionDepartamentos = document.getElementById('solucionDepartamentos');
+
+    function filtrarSoluciones() {
+        const termino = buscador.value.trim().toLowerCase();
+        Array.from(solucionesSelect.options).forEach(function (option) {
+            option.hidden = termino !== '' && !option.text.toLowerCase().includes(termino);
+        });
+    }
+
+    function mostrarErrores(errors) {
+        const mensajes = [];
+        Object.keys(errors || {}).forEach(function (field) {
+            errors[field].forEach(function (message) {
+                mensajes.push(message);
+            });
+        });
+        solucionError.textContent = mensajes.join(' ');
+        solucionError.classList.toggle('d-none', mensajes.length === 0);
+    }
+
+    function filtrarSistemasPorHardware() {
+        const hardwareId = hardwareSelect.value;
+        const sistemasPermitidos = hardwareId ? new Set(hardwareSistemas[hardwareId] || []) : null;
+
+        Array.from(sistemaSelect.options).forEach(function (option) {
+            option.hidden = option.value !== '' && sistemasPermitidos !== null && !sistemasPermitidos.has(option.value);
+        });
+
+        const sistemaSeleccionado = Array.from(sistemaSelect.selectedOptions)[0] || null;
+        if (sistemaSeleccionado && sistemaSeleccionado.hidden) {
+            sistemaSelect.value = '';
+            if (moduloSelect) {
+                moduloSelect.value = '';
+            }
+        }
+
+        filtrarModulosPorSistema();
+    }
+
+    function filtrarModulosPorSistema() {
+        if (!moduloSelect) {
+            return;
+        }
+
+        const sistemaId = sistemaSelect.value;
+        const modulosPermitidos = sistemaId ? new Set(sistemaModulos[sistemaId] || []) : new Set();
+
+        Array.from(moduloSelect.options).forEach(function (option) {
+            option.hidden = option.value !== '' && !modulosPermitidos.has(option.value);
+        });
+
+        const moduloSeleccionado = Array.from(moduloSelect.selectedOptions)[0] || null;
+        if (moduloSeleccionado && moduloSeleccionado.hidden) {
+            moduloSelect.value = '';
+        }
+    }
+
+    function getSolucionSeleccionada() {
+        return Array.from(solucionesSelect.selectedOptions)[0] || null;
+    }
+
+    function editarSolucionUrl(solucionId) {
+        return editarSolucionUrlTemplate.replace('/0/', '/' + solucionId + '/');
+    }
+
+    function actualizarBotonEditar() {
+        editarSolucion.disabled = getSolucionSeleccionada() === null;
+    }
+
+    function prepararNuevaSolucion() {
+        solucionForm.dataset.mode = 'create';
+        solucionForm.dataset.solucionId = '';
+        solucionForm.action = crearSolucionUrl;
+        modalTitulo.innerHTML = '<i class="bi bi-tools"></i> Nueva solución';
+        guardarSolucion.innerHTML = '<i class="bi bi-check2"></i> Guardar solución';
+        solucionForm.reset();
+        solucionError.classList.add('d-none');
+    }
+
+    function prepararEdicionSolucion(solucion) {
+        solucionForm.dataset.mode = 'edit';
+        solucionForm.dataset.solucionId = solucion.id;
+        solucionForm.action = editarSolucionUrl(solucion.id);
+        modalTitulo.innerHTML = '<i class="bi bi-pencil-square"></i> Editar solución';
+        guardarSolucion.innerHTML = '<i class="bi bi-check2"></i> Guardar cambios';
+        solucionNombre.value = solucion.nombre || '';
+        solucionPasos.value = solucion.pasos || '';
+        solucionAnexos.value = solucion.anexos || '';
+        const responsables = (solucion.responsables || []).map(function (id) {
+            return String(id);
+        });
+        solucionResponsables.querySelectorAll('input[name="responsables"]').forEach(function (input) {
+            input.checked = responsables.includes(input.value);
+        });
+        const departamentos = (solucion.departamentos || []).map(function (id) {
+            return String(id);
+        });
+        solucionDepartamentos.querySelectorAll('input[name="departamentos"]').forEach(function (input) {
+            input.checked = departamentos.includes(input.value);
+        });
+        solucionError.classList.add('d-none');
+    }
+
+    buscador.addEventListener('input', filtrarSoluciones);
+    hardwareSelect.addEventListener('change', filtrarSistemasPorHardware);
+    sistemaSelect.addEventListener('change', filtrarModulosPorSistema);
+    limpiarBusqueda.addEventListener('click', function () {
+        buscador.value = '';
+        filtrarSoluciones();
+        buscador.focus();
+    });
+    solucionesSelect.addEventListener('change', actualizarBotonEditar);
+
+    nuevaSolucion.addEventListener('click', prepararNuevaSolucion);
+
+    editarSolucion.addEventListener('click', function () {
+        const option = getSolucionSeleccionada();
+        if (option === null) {
+            return;
+        }
+
+        editarSolucion.disabled = true;
+        fetch(editarSolucionUrl(option.value), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw data;
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                prepararEdicionSolucion(data.solucion);
+                modal.show();
+            })
+            .catch(function () {
+                prepararNuevaSolucion();
+                mostrarErrores({general: ['No se pudo cargar la solución.']});
+                modal.show();
+            })
+            .finally(function () {
+                actualizarBotonEditar();
+            });
+    });
+
+    solucionForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        solucionError.classList.add('d-none');
+        guardarSolucion.disabled = true;
+
+        fetch(solucionForm.action, {
+            method: 'POST',
+            body: new FormData(solucionForm),
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw data;
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                let option = Array.from(solucionesSelect.options).find(function (item) {
+                    return item.value === String(data.solucion.id);
+                });
+                if (option) {
+                    option.text = data.solucion.nombre;
+                    option.selected = true;
+                } else {
+                    option = new Option(data.solucion.nombre, data.solucion.id, true, true);
+                    solucionesSelect.add(option);
+                }
+                buscador.value = '';
+                filtrarSoluciones();
+                solucionForm.reset();
+                modal.hide();
+                actualizarBotonEditar();
+                solucionesSelect.focus();
+            })
+            .catch(function (data) {
+                mostrarErrores(data.errors || {general: ['No se pudo guardar la solución.']});
+            })
+            .finally(function () {
+                guardarSolucion.disabled = false;
+            });
+    });
+
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        solucionError.classList.add('d-none');
+        prepararNuevaSolucion();
+    });
+
+    actualizarBotonEditar();
+    filtrarSistemasPorHardware();
+});
+</script>
+{% endblock %}
