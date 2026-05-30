@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django.urls import resolve, reverse
+from django.urls.resolvers import URLPattern
+
+from .urls import urlpatterns
 
 
 class LoginRequiredTests(TestCase):
@@ -16,3 +19,10 @@ class LoginRequiredTests(TestCase):
 
         self.assertTrue(hasattr(callback, 'login_url'))
         self.assertEqual(callback.redirect_field_name, 'next')
+
+    def test_all_app_urls_are_wrapped_with_login_required(self):
+        for pattern in urlpatterns:
+            with self.subTest(route=str(pattern.pattern), name=pattern.name):
+                self.assertIsInstance(pattern, URLPattern)
+                self.assertTrue(hasattr(pattern.callback, 'login_url'))
+                self.assertEqual(pattern.callback.redirect_field_name, 'next')

@@ -7,11 +7,27 @@ from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-dev-key')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+def env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in {'1', 'true', 'yes', 'on'}
 
-if not DEBUG and (SECRET_KEY == 'django-insecure-local-dev-key' or ALLOWED_HOSTS == ['*']):
+
+def env_list(name, default=''):
+    return [
+        value.strip()
+        for value in os.environ.get(name, default).split(',')
+        if value.strip()
+    ]
+
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-dev-key')
+DEBUG = env_bool('DJANGO_DEBUG', True)
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', '*')
+
+if not DEBUG and (
+    SECRET_KEY == 'django-insecure-local-dev-key'
+    or not ALLOWED_HOSTS
+    or '*' in ALLOWED_HOSTS
+):
     raise ImproperlyConfigured(
         'Para produccion define DJANGO_SECRET_KEY y DJANGO_ALLOWED_HOSTS.'
     )
@@ -109,18 +125,14 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = int(os.environ.get('SESSION_COOKIE_AGE', 8 * 60 * 60))
 
-SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False') == 'True'
+SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', False)
 SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 0 if DEBUG else 31536000))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False') == 'True'
-SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False') == 'True'
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
+SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', False)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin.strip()
-]
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
 
-if os.environ.get('USE_X_FORWARDED_PROTO', 'False') == 'True':
+if env_bool('USE_X_FORWARDED_PROTO', False):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
