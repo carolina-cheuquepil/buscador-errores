@@ -5,16 +5,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from errores.auth_forms import SecureAuthenticationForm
 
+login_view = LoginView.as_view(
+    template_name='registration/login.html',
+    authentication_form=SecureAuthenticationForm,
+    redirect_authenticated_user=True,
+)
+
 urlpatterns = [
-    path(
-        'login/',
-        LoginView.as_view(
-            template_name='registration/login.html',
-            authentication_form=SecureAuthenticationForm,
-            redirect_authenticated_user=True,
-        ),
-        name='login',
-    ),
+    path('login/', login_view, name='login'),
+    path('accounts/login/', login_view, name='accounts_login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('admin/', admin.site.urls),
     path('', include('errores.urls')),

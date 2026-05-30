@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 from django.urls import resolve, reverse
 from django.urls.resolvers import URLPattern
 
@@ -26,3 +27,14 @@ class LoginRequiredTests(TestCase):
                 self.assertIsInstance(pattern, URLPattern)
                 self.assertTrue(hasattr(pattern.callback, 'login_url'))
                 self.assertEqual(pattern.callback.redirect_field_name, 'next')
+
+    def test_authenticated_user_without_view_permission_gets_forbidden(self):
+        user = get_user_model().objects.create_user(
+            username='sin_permiso',
+            password='clave-segura-123',
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('errores:lista'))
+
+        self.assertEqual(response.status_code, 403)

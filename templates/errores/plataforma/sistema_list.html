@@ -5,9 +5,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="bi bi-window-stack"></i> Sistemas <span class="badge bg-secondary">{{ sistemas|length }}</span></h5>
+    {% if perms.errores.add_sistema %}
     <a href="{% url 'errores:sistema_crear' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Nuevo sistema
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm">
@@ -34,12 +36,16 @@
                         {% endfor %}
                     </td>
                     <td class="text-end">
+                        {% if perms.errores.change_sistema %}
                         <a href="{% url 'errores:sistema_editar' sistema.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if perms.errores.delete_sistema %}
                         <a href="{% url 'errores:sistema_eliminar' sistema.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

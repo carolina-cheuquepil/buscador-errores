@@ -5,9 +5,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="bi bi-building"></i> Departamentos <span class="badge bg-secondary">{{ departamentos|length }}</span></h5>
+    {% if perms.errores.add_departamento %}
     <a href="{% url 'errores:departamento_crear' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Nuevo departamento
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm">
@@ -54,12 +56,16 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
+                        {% if perms.errores.change_departamento %}
                         <a href="{% url 'errores:departamento_editar' departamento.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if perms.errores.delete_departamento %}
                         <a href="{% url 'errores:departamento_eliminar' departamento.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

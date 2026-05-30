@@ -7,9 +7,11 @@
     <h5 class="mb-0">
         <i class="bi bi-tools"></i> Soluciones <span class="badge bg-secondary">{{ soluciones|length }}</span>
     </h5>
+    {% if perms.errores.add_solucion %}
     <a href="{% url 'errores:solucion_crear' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Nueva solucion
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm mb-3">
@@ -74,12 +76,16 @@
                     </td>
                     <td class="text-pre">{{ solucion.anexos|default:"-"|truncatechars:120 }}</td>
                     <td class="text-end">
+                        {% if perms.errores.change_solucion %}
                         <a href="{% url 'errores:solucion_editar' solucion.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if perms.errores.delete_solucion %}
                         <a href="{% url 'errores:solucion_eliminar' solucion.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

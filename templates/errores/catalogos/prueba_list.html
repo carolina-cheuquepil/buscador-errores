@@ -5,9 +5,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Pruebas <span class="badge bg-secondary">{{ pruebas|length }}</span></h5>
+    {% if perms.errores.add_prueba %}
     <a href="{% url 'errores:prueba_crear' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Nueva prueba
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm">
@@ -24,12 +26,16 @@
                 <tr>
                     <td class="fw-medium">{{ prueba.descripcion }}</td>
                     <td class="text-end">
+                        {% if perms.errores.change_prueba %}
                         <a href="{% url 'errores:prueba_editar' prueba.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if perms.errores.delete_prueba %}
                         <a href="{% url 'errores:prueba_eliminar' prueba.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

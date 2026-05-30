@@ -63,27 +63,41 @@
         </a>
         {% if user.is_authenticated %}
         <div class="d-flex gap-2">
+            {% if perms.errores.view_hardware %}
             <a href="{% url 'errores:hardware_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-pc-display"></i> Hardware
             </a>
+            {% endif %}
+            {% if perms.errores.view_sistema %}
             <a href="{% url 'errores:sistema_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-window-stack"></i> Sistemas
             </a>
+            {% endif %}
+            {% if perms.errores.view_departamento %}
             <a href="{% url 'errores:departamento_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-building"></i> Departamentos
             </a>
+            {% endif %}
+            {% if perms.errores.view_prueba %}
             <a href="{% url 'errores:prueba_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-clipboard-check"></i> Pruebas
             </a>
+            {% endif %}
+            {% if perms.errores.view_solucion %}
             <a href="{% url 'errores:solucion_lista' %}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-tools"></i> Soluciones
             </a>
+            {% endif %}
+            {% if perms.errores.add_error %}
             <a href="{% url 'errores:crear' %}" class="btn btn-outline-light btn-sm me-2">
                 <i class="bi bi-plus-lg"></i> Nuevo error
             </a>
+            {% endif %}
+            {% if user.is_staff %}
             <a href="/admin/" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-gear"></i> Admin
             </a>
+            {% endif %}
             <span class="navbar-text small text-light ms-2">
                 <i class="bi bi-person-circle"></i> {{ user.get_username }}
             </span>

@@ -78,12 +78,16 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
                     <label for="{{ form.soluciones.id_for_label }}" class="form-label mb-0">{{ form.soluciones.label }}</label>
                     <div class="btn-group btn-group-sm">
+                        {% if perms.errores.change_solucion %}
                         <button type="button" class="btn btn-outline-secondary" id="editarSolucionSeleccionada" disabled>
                             <i class="bi bi-pencil-square"></i> Editar solución
                         </button>
+                        {% endif %}
+                        {% if perms.errores.add_solucion %}
                         <button type="button" class="btn btn-outline-primary" id="nuevaSolucion" data-bs-toggle="modal" data-bs-target="#solucionModal">
                             <i class="bi bi-plus-lg"></i> Nueva solución
                         </button>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="input-group mb-2">
@@ -264,6 +268,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function actualizarBotonEditar() {
+        if (!editarSolucion) {
+            return;
+        }
         editarSolucion.disabled = getSolucionSeleccionada() === null;
     }
 
@@ -311,8 +318,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     solucionesSelect.addEventListener('change', actualizarBotonEditar);
 
-    nuevaSolucion.addEventListener('click', prepararNuevaSolucion);
+    if (nuevaSolucion) {
+        nuevaSolucion.addEventListener('click', prepararNuevaSolucion);
+    }
 
+    if (editarSolucion) {
     editarSolucion.addEventListener('click', function () {
         const option = getSolucionSeleccionada();
         if (option === null) {
@@ -346,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 actualizarBotonEditar();
             });
     });
+    }
 
     solucionForm.addEventListener('submit', function (event) {
         event.preventDefault();

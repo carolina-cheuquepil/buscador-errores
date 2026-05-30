@@ -16,9 +16,11 @@
             {% else %}
                 <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Inactivo</span>
             {% endif %}
+            {% if perms.errores.change_departamento %}
             <a href="{% url 'errores:departamento_editar' departamento.pk %}" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-pencil"></i> Editar departamento
             </a>
+            {% endif %}
         </div>
     </div>
     <div class="card-body">
@@ -40,9 +42,11 @@
         <i class="bi bi-person-lines-fill"></i> Responsables
         <span class="badge bg-secondary">{{ responsables|length }}</span>
     </h5>
+    {% if perms.errores.add_responsable %}
     <a href="{% url 'errores:departamento_responsable_crear' departamento.pk %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Nuevo responsable
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm">
@@ -71,12 +75,16 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
+                        {% if perms.errores.change_responsable %}
                         <a href="{% url 'errores:departamento_responsable_editar' departamento.pk responsable.pk %}" class="btn btn-sm btn-outline-secondary" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if perms.errores.delete_responsable %}
                         <a href="{% url 'errores:departamento_responsable_eliminar' departamento.pk responsable.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 
 from .dominios.catalogos import Prueba
 from .dominios.errores import Error, ErrorSolucion
@@ -42,7 +42,6 @@ def _sistema_modulos_context():
     for sistema_id, modulo_id in modulos:
         sistema_modulos.setdefault(str(sistema_id), []).append(str(modulo_id))
     return sistema_modulos
-
 
 def lista_errores(request):
     form = BusquedaForm(request.GET or None)
@@ -613,6 +612,7 @@ def crear_solucion_rapida(request):
     })
 
 
+@require_http_methods(['GET', 'POST'])
 def editar_solucion_rapida(request, pk):
     solucion = get_object_or_404(Solucion, pk=pk)
 
